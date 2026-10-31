@@ -2,10 +2,15 @@
 
 > 把手环做成一个「随机震动番茄钟」：设一段专注时间，期间它隔一会儿就随机震动提醒你回神——**全程不用看屏幕**。
 
-灵感来自 B 站视频《为什么我能每天学习 10 小时》里的「随机提示音」番茄钟：把提示音换成震动，就成了手环上最合适的功能。一个手势都不用做，震三下 = 该歇 10 秒，震一下 = 继续干活。
-原视频链接【为什么我能每天学习10小时】 https://www.bilibili.com/video/BV1naLozQEBq/
+专注震动番茄钟：随机短片段休息，激活神经回放与正反馈奖励机制，刺激多巴胺专注学习，无感震动沉浸式专注。
 
-基于cell论文Replay神经回放原理辅助学习：https://www.cell.com/cell-reports/fulltext/S2211-1247(20)30530-1
+灵感来自：【为什么我能每天学习10小时】 https://www.bilibili.com/video/BV1naLozQEBq/
+
+并且基于该框架将提示音修改为更时候手表的震动，只有佩戴者才会感知，图书馆也能用！
+
+
+论文参考：《Replay of Learned Neural Firing Sequences during Rest in Human Motor Cortex》https://www.cell.com/cell-reports/fulltext/S2211-1247(20)30530-1
+
 
 基于小米 **Vela** 快应用框架（`aiot-toolkit` 2.0.3）开发，包名 `com.band.focusbuzz`，成品 **31 KB**，纯 JS / UX，无任何第三方库。
 
