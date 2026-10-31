@@ -4,6 +4,11 @@ dist/
 preview-rpk/
 tools/*.log
 tools/*.png
+tools/tmp2/
+tools/icons/
+tools/dev-mf.json
+tools/dev/tpl.txt
+tools/dev/patch-template.py
 *.rpk
 !release/*.rpk
 .DS_Store
