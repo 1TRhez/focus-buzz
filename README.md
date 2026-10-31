@@ -96,7 +96,7 @@
 - 首次 `npm install` 需要联网（默认走 npmmirror 镜像，见 `.npmrc`）
 
 ```powershell
-git clone https://github.com/1TRhez/-.git focus-buzz
+git clone https://github.com/1TRhez/focus-buzz.git focus-buzz
 cd focus-buzz
 npm install
 ```
