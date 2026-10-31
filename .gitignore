@@ -1,0 +1,10 @@
+node_modules/
+build/
+dist/
+preview-rpk/
+tools/*.log
+tools/*.png
+*.rpk
+!release/*.rpk
+.DS_Store
+Thumbs.db

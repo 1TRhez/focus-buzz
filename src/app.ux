@@ -1,0 +1,10 @@
+<script>
+export default {
+  onCreate() {
+    console.log('focus-buzz created')
+  },
+  onDestroy() {
+    console.log('focus-buzz destroyed')
+  }
+}
+</script>

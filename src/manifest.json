@@ -1,0 +1,34 @@
+{
+  "package": "com.band.focusbuzz",
+  "name": "专注震动",
+  "versionName": "1.2.5",
+  "versionCode": 8,
+  "minPlatformVersion": 1060,
+  "icon": "/common/logo.png",
+  "deviceTypeList": [
+    "watch"
+  ],
+  "features": [
+    {
+      "name": "system.vibrator"
+    },
+    {
+      "name": "system.brightness"
+    },
+    {
+      "name": "system.storage"
+    }
+  ],
+  "config": {
+    "logLevel": "log",
+    "designWidth": 192
+  },
+  "router": {
+    "entry": "pages/index",
+    "pages": {
+      "pages/index": {
+        "component": "index"
+      }
+    }
+  }
+}

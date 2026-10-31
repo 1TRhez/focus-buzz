@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>专注震动 · 电脑预览</title>
+<style>
+  :root {
+    --green: #22c55e;
+    --green-dark: #04140a;
+    --card: #111827;
+    --track: #1f2937;
+    --chip: #16221a;
+    --gray: #6b7280;
+    --gray2: #9ca3af;
+    --gray3: #4b5563;
+    --scale: 2.4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: radial-gradient(circle at 50% 0%, #1b2430 0%, #0b0f14 60%, #060809 100%);
+    color: #e5e7eb;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  }
+  body { display: flex; flex-direction: column; align-items: center; }
+
+  .toolbar {
+    position: sticky; top: 0; z-index: 10;
+    width: 100%; padding: 10px 16px;
+    display: flex; align-items: center; gap: 14px;
+    background: rgba(9, 12, 16, .82); backdrop-filter: blur(8px);
+    border-bottom: 1px solid #1f2937;
+    font-size: 13px; color: #9ca3af;
+  }
+  .toolbar strong { color: #e5e7eb; font-weight: 600; }
+  .toolbar label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .toolbar input[type=range] { width: 120px; }
+  .toolbar .spacer { flex: 1; }
+  .toolbar button {
+    background: #16221a; color: var(--green); border: 1px solid #1f3d28;
+    border-radius: 10px; padding: 5px 10px; font-size: 12px; cursor: pointer;
+  }
+  .toolbar button:hover { background: #1c2d22; }
+
+  .stage { padding: 26px 0 60px; }
+
+  /* 手环机身 */
+  .device {
+    position: relative;
+    width: calc(192px * var(--scale));
+    height: calc(490px * var(--scale));
+    border-radius: calc(56px * var(--scale)) / calc(48px * var(--scale));
+    background: linear-gradient(160deg, #2a2f36 0%, #14181d 45%, #0d1013 100%);
+    box-shadow:
+      0 0 0 calc(2px * var(--scale)) #3d444c,
+      0 0 0 calc(4px * var(--scale)) #0a0c0e,
+      0 calc(18px * var(--scale)) calc(50px * var(--scale)) rgba(0, 0, 0, .75);
+    padding: calc(7px * var(--scale));
+  }
+  .screen {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: calc(50px * var(--scale)) / calc(44px * var(--scale));
+    background: #000;
+    overflow: hidden;
+  }
+
+  /* 192 x 490 的设计画布，整体等比放大 */
+  .canvas {
+    position: absolute; top: 0; left: 50%;
+    width: 192px; height: 490px;
+    transform: translateX(-50%) scale(var(--scale));
+    transform-origin: top center;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 18px 0 20px;
+    color: #fff;
+    user-select: none;
+  }
+
+  .chip {
+    width: 108px; height: 34px; border-radius: 17px;
+    background: var(--chip);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; color: var(--green);
+    cursor: pointer;
+  }
+  .spacer { flex: 1; }
+
+  .clock {
+    font-size: 58px; font-weight: 700; line-height: 1;
+    letter-spacing: 0; color: #fff;
+    transition: color .25s linear;
+  }
+  .clock.small { font-size: 30px; }
+  .clock.break { color: #6b7280; }
+
+  .plan { margin-top: 8px; font-size: 15px; color: var(--gray); }
+
+  .track {
+    margin-top: 12px; width: 156px; height: 6px;
+    border-radius: 3px; background: var(--track); overflow: hidden;
+  }
+  .track > i { display: block; height: 100%; width: 0; background: var(--green); border-radius: 3px; }
+
+  .meta { margin-top: 12px; font-size: 15px; color: var(--gray2); }
+
+  .actions {
+    width: 170px; display: flex; justify-content: center; align-items: center;
+    height: 52px;
+  }
+  .btn {
+    height: 52px; border-radius: 26px; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; cursor: pointer; overflow: hidden; white-space: nowrap;
+    transition: width .16s linear, opacity .16s linear, background .2s linear;
+  }
+  .btn-main { width: 160px; background: var(--green); color: var(--green-dark); font-size: 21px; }
+  .btn-main.active { background: var(--green); }
+  .btn-reset {
+    width: 0; margin-left: 0; opacity: 0; background: var(--track); color: #d1d5db;
+    font-size: 17px; font-weight: 400;
+  }
+
+  .tip { margin-top: 10px; font-size: 12px; color: var(--gray3); }
+
+  /* 设置面板 */
+  .panel { width: 192px; height: 452px; display: none; flex-direction: column; align-items: center; }
+  .panel.open { display: flex; }
+  .main.hide { display: none; }
+
+  .head { width: 170px; height: 34px; display: flex; align-items: center; }
+  .head .back { width: 50px; font-size: 16px; color: var(--green); cursor: pointer; }
+  .head .title { flex: 1; text-align: center; font-size: 19px; font-weight: 700; }
+  .head .pad { width: 50px; }
+
+  .cards {
+    width: 170px; height: 306px; margin-top: 6px;
+    overflow-y: auto; scrollbar-width: none;
+  }
+  .cards::-webkit-scrollbar { display: none; }
+
+  .card {
+    width: 170px; height: 74px; border-radius: 14px; background: var(--card);
+    padding: 8px 12px; display: flex; flex-direction: column;
+  }
+  .card + .card { margin-top: 6px; }
+  .card .label { font-size: 14px; color: var(--gray); }
+  .card .row {
+    margin-top: 6px; height: 40px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .card .row.center { justify-content: center; }
+  .step {
+    width: 40px; height: 40px; border-radius: 20px;
+    background: #1b2431; border: 1px solid #2b3a4d;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 600; color: #fff;
+    cursor: pointer; user-select: none;
+  }
+  .step:active { background: #24303f; }
+  .value { font-size: 20px; color: #fff; }
+
+  .switch {
+    width: 62px; height: 34px; border-radius: 17px;
+    background: #2b3a4d; position: relative; cursor: pointer; transition: background .2s;
+  }
+  .switch.on { background: var(--green); }
+  .switch i {
+    position: absolute; top: 3px; left: 3px; width: 28px; height: 28px; border-radius: 50%;
+    background: #fff; transition: left .2s;
+  }
+  .switch.on i { left: 31px; }
+
+  .try {
+    margin-top: 8px; width: 116px; height: 38px; border-radius: 19px;
+    background: var(--chip); color: var(--green); font-size: 15px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .try:active { background: #1c2d22; }
+
+  .save {
+    margin-top: 10px; width: 160px; height: 52px; border-radius: 26px;
+    background: var(--green); color: var(--green-dark); font-weight: 700; font-size: 21px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+  .save:active { filter: brightness(.94); }
+
+  .legend { margin-top: 18px; font-size: 12px; color: #6b7280; text-align: center; line-height: 1.9; }
+  .legend b { color: #9ca3af; font-weight: 600; }
+  .pulse { animation: pulse .5s ease-in-out; }
+  @keyframes pulse { 0%,100% { transform: none; } 50% { transform: scale(1.06); } }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <strong>专注震动 · 电脑预览</strong>
+  <label>缩放 <input id="zoom" type="range" min="1.2" max="3.2" step="0.1" value="2.4"></label>
+  <label><input id="fast" type="checkbox"> 快速演示（提醒间隔 12 秒）</label>
+  <span class="spacer"></span>
+  <button id="toMain">主界面</button>
+  <button id="toSet">设置页</button>
+</div>
+
+<div class="stage">
+  <div class="device">
+    <div class="screen">
+      <div class="canvas">
+
+        <!-- 主界面 -->
+        <div class="main" id="main">
+          <div class="chip" id="openSet">设置</div>
+          <div class="spacer"></div>
+          <div class="clock" id="clock">1:00:00</div>
+          <div class="plan" id="plan">计划 60 分钟</div>
+          <div class="track"><i id="fill"></i></div>
+          <div class="meta" id="meta">已提示 0 次</div>
+          <div class="spacer"></div>
+          <div class="actions">
+            <div class="btn btn-main" id="mainBtn">开始</div>
+            <div class="btn btn-reset" id="resetBtn">重置</div>
+          </div>
+          <div class="tip" id="tip">每 5-15 分钟随机提醒</div>
+        </div>
+
+        <!-- 设置面板 -->
+        <div class="panel" id="panel">
+          <div class="head">
+            <div class="back" id="back">‹ 返回</div>
+            <div class="title">设置</div>
+            <div class="pad"></div>
+          </div>
+
+          <div class="cards">
+            <div class="card">
+              <div class="label">专注时长 · 长按快调</div>
+              <div class="row">
+                <div class="step" data-k="session" data-d="-1">-</div>
+                <div class="value"><span id="vSession">60</span> 分</div>
+                <div class="step" data-k="session" data-d="1">+</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="label">最短间隔</div>
+              <div class="row">
+                <div class="step" data-k="minGap" data-d="-1">-</div>
+                <div class="value"><span id="vMin">5</span> 分</div>
+                <div class="step" data-k="minGap" data-d="1">+</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="label">最长间隔</div>
+              <div class="row">
+                <div class="step" data-k="maxGap" data-d="-1">-</div>
+                <div class="value"><span id="vMax">15</span> 分</div>
+                <div class="step" data-k="maxGap" data-d="1">+</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="label">专注时常亮</div>
+              <div class="row center">
+                <div class="switch on" id="switch"><i></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="try" id="tryBtn">试一下震动</div>
+          <div class="save" id="saveBtn">保存并返回</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <b>点「开始 / 暂停」</b>：暂停后主按钮收窄、右侧长出等宽的「重置」（就是手表上的动画）<br>
+    <b>点「设置」</b>：进入设置页；加减号可点，长按连续调节；<b>专注时常亮</b>是开关<br>
+    灰色倒计时 = 休息的 10 秒（计时不暂停），勾上「快速演示」能立刻看到整个循环
+  </div>
+</div>
+
+<script>
+(function () {
+  var S = {
+    sessionMin: 60, minGap: 5, maxGap: 15, keepAwake: true
+  };
+  var sessionMs = S.sessionMin * 60000;
+  var running = false, finished = false;
+  var elapsedMs = 0, startedAt = 0, count = 0, nextAt = 0;
+  var phase = 'work', breakEndsAt = 0, timer = null;
+  var fast = false;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var clockEl = $('clock'), planEl = $('plan'), fillEl = $('fill'), metaEl = $('meta');
+  var mainBtn = $('mainBtn'), resetEl = $('resetBtn'), tipEl = $('tip');
+  var mainView = $('main'), panel = $('panel');
+
+  var BREAK_MS = 10000;
+  var clockSmall = 30, clockBig = 58;
+  var btnFull = 160, btnHalf = 78;
+
+  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+  function formatClock(ms) {
+    if (ms < 0) ms = 0;
+    var total = Math.round(ms / 1000);
+    var h = Math.floor(total / 3600);
+    var m = Math.floor((total % 3600) / 60);
+    var s = total % 60;
+    return h > 0 ? h + ':' + pad2(m) + ':' + pad2(s) : pad2(m) + ':' + pad2(s);
+  }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+
+  function buzz(times, long) {
+    if (!navigator.vibrate) return;
+    var seq = [];
+    for (var i = 0; i < times; i++) {
+      if (i) seq.push(200);
+      seq.push(long ? 400 : 120);
+    }
+    navigator.vibrate(seq);
+    clockEl.classList.remove('pulse');
+    void clockEl.offsetWidth;
+    clockEl.classList.add('pulse');
+  }
+
+  function randomGap() {
+    if (fast) return 12000;
+    var lo = S.minGap * 60000;
+    var hi = S.maxGap * 60000;
+    if (hi <= lo) hi = lo + 60000;
+    return lo + Math.floor(Math.random() * (hi - lo + 1));
+  }
+
+  function updateView() {
+    var remaining = sessionMs - elapsedMs;
+    var text;
+    if (phase === 'break') {
+      text = '' + Math.max(1, Math.ceil((breakEndsAt - Date.now()) / 1000));
+    } else if (finished) {
+      text = '00:00';
+    } else {
+      text = formatClock(remaining);
+    }
+    clockEl.textContent = text;
+    clockEl.classList.toggle('small', text.length > 5);
+    clockEl.style.fontSize = (text.length > 5 ? clockSmall : clockBig) + 'px';
+    clockEl.classList.toggle('break', phase === 'break');
+
+    planEl.textContent = '计划 ' + S.sessionMin + ' 分钟';
+    var ratio = finished ? 1 : clamp(elapsedMs / sessionMs, 0, 1);
+    fillEl.style.width = Math.round(ratio * 156) + 'px';
+    metaEl.textContent = '已提示 ' + count + ' 次';
+
+    var wantReset = !running && !finished && elapsedMs > 0;
+    if (phase === 'break') {
+      mainBtn.textContent = '暂停';
+      tipEl.textContent = '震动提醒过了，歇一下';
+    } else if (finished) {
+      mainBtn.textContent = '再来一轮';
+      tipEl.textContent = '这一轮结束了，长按可以重置';
+    } else if (running) {
+      mainBtn.textContent = '暂停';
+      tipEl.textContent = '每 ' + S.minGap + '-' + S.maxGap + ' 分钟随机提醒';
+    } else if (elapsedMs > 0) {
+      mainBtn.textContent = '继续';
+      tipEl.textContent = '按继续回到专注';
+    } else {
+      mainBtn.textContent = '开始';
+      tipEl.textContent = '每 ' + S.minGap + '-' + S.maxGap + ' 分钟随机提醒';
+    }
+
+    mainBtn.style.width = (wantReset ? btnHalf : btnFull) + 'px';
+    resetEl.style.width = (wantReset ? btnHalf : 0) + 'px';
+    resetEl.style.marginLeft = (wantReset ? 6 : 0) + 'px';
+    resetEl.style.opacity = wantReset ? 1 : 0;
+  }
+
+  function tick() {
+    if (!running || finished) return;
+    var now = Date.now();
+    if (phase === 'break') {
+      if (now >= breakEndsAt) {
+        phase = 'work';
+        buzz(1, false);
+        nextAt = now + randomGap();
+      }
+    } else {
+      elapsedMs = now - startedAt;
+      if (elapsedMs >= sessionMs) {
+        finished = true; running = false; elapsedMs = sessionMs;
+        buzz(2, true);
+        updateView();
+        return;
+      }
+      if (now >= nextAt) {
+        count++;
+        buzz(3, false);
+        phase = 'break';
+        breakEndsAt = now + BREAK_MS;
+      }
+    }
+    updateView();
+  }
+
+  function start() {
+    if (finished) { finished = false; elapsedMs = 0; count = 0; }
+    running = true;
+    phase = 'work';
+    startedAt = Date.now() - elapsedMs;
+    nextAt = Date.now() + randomGap();
+    if (!timer) timer = setInterval(tick, 500);
+    updateView();
+  }
+  function pause() { running = false; updateView(); }
+  function reset() { running = false; finished = false; phase = 'work'; elapsedMs = 0; count = 0; updateView(); }
+
+  mainBtn.addEventListener('click', function () {
+    if (running) pause(); else start();
+  });
+  resetEl.addEventListener('click', reset);
+
+  // 长按主按钮 = 重置（和手表一致）
+  var holdTimer = null;
+  mainBtn.addEventListener('mousedown', function () {
+    holdTimer = setTimeout(function () { reset(); holdTimer = null; }, 700);
+  });
+  ['mouseup', 'mouseleave'].forEach(function (ev) {
+    mainBtn.addEventListener(ev, function () {
+      if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+    });
+  });
+
+  // 设置
+  function openSettings() { mainView.classList.add('hide'); panel.classList.add('open'); }
+  function closeSettings() { panel.classList.remove('open'); mainView.classList.remove('hide'); }
+
+  $('openSet').addEventListener('click', openSettings);
+  $('back').addEventListener('click', closeSettings);
+  $('saveBtn').addEventListener('click', closeSettings);
+
+  function syncSettingsUI() {
+    $('vSession').textContent = S.sessionMin;
+    $('vMin').textContent = S.minGap;
+    $('vMax').textContent = S.maxGap;
+    $('switch').classList.toggle('on', !!S.keepAwake);
+  }
+  syncSettingsUI();
+
+  function step(kind, dir, boost) {
+    if (kind === 'session') S.sessionMin = clamp(S.sessionMin + dir * 5 * (boost ? 3 : 1), 10, 120);
+    if (kind === 'minGap') S.minGap = clamp(S.minGap + dir * 1 * (boost ? 3 : 1), 1, 59);
+    if (kind === 'maxGap') S.maxGap = clamp(S.maxGap + dir * 1 * (boost ? 3 : 1), S.minGap + 1, 120);
+    if (S.maxGap <= S.minGap) S.maxGap = S.minGap + 1;
+    sessionMs = S.sessionMin * 60000;
+    if (running && phase === 'work' && elapsedMs < sessionMs) {
+      nextAt = Math.min(nextAt, Date.now() + randomGap());
+    }
+    syncSettingsUI();
+    updateView();
+  }
+
+  document.querySelectorAll('.step').forEach(function (el) {
+    var kind = el.dataset.k, dir = Number(el.dataset.d);
+    var hold = null, fired = false;
+    el.addEventListener('click', function () {
+      if (fired) { fired = false; return; }
+      step(kind, dir, false);
+    });
+    el.addEventListener('mousedown', function () {
+      fired = false;
+      hold = setTimeout(function () {
+        fired = true;
+        var iv = setInterval(function () { step(kind, dir, true); }, 90);
+        el.dataset.iv = iv;
+      }, 450);
+    });
+    ['mouseup', 'mouseleave'].forEach(function (ev) {
+      el.addEventListener(ev, function () {
+        if (hold) { clearTimeout(hold); hold = null; }
+        if (el.dataset.iv) { clearInterval(Number(el.dataset.iv)); delete el.dataset.iv; }
+      });
+    });
+  });
+
+  $('switch').addEventListener('click', function () {
+    S.keepAwake = !S.keepAwake;
+    syncSettingsUI();
+  });
+
+  $('tryBtn').addEventListener('click', function () { buzz(3, false); });
+
+  $('zoom').addEventListener('input', function (e) {
+    document.documentElement.style.setProperty('--scale', e.target.value);
+  });
+  $('fast').addEventListener('change', function (e) {
+    fast = e.target.checked;
+    if (running && phase === 'work') nextAt = Date.now() + randomGap();
+  });
+  $('toMain').addEventListener('click', closeSettings);
+  $('toSet').addEventListener('click', openSettings);
+
+  updateView();
+  timer = setInterval(tick, 500);
+})();
+</script>
+</body>
+</html>

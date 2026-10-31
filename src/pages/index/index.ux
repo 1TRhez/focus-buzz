@@ -1,0 +1,879 @@
+<template>
+  <div class="page" style="width: {{pageW}}px; height: {{pageH}}px">
+    <div style="height: {{padTop}}px"></div>
+
+    <!-- ===== 主界面 ===== -->
+    <div class="row-center" if="{{!settingsOpen}}" style="height: {{setH}}px">
+      <div class="set-btn" style="width: {{setW}}px; height: {{setH}}px; border-radius: {{setR}}px" onclick="openSettings">
+        <text style="font-size: {{setFont}}px; color: #22c55e">设置</text>
+      </div>
+    </div>
+
+    <div class="spacer" if="{{!settingsOpen}}"></div>
+
+    <text if="{{!settingsOpen}}" style="font-size: {{clockSize2}}px; font-weight: bold; color: {{clockColor}}">{{clockText}}</text>
+    <text if="{{!settingsOpen}}" style="margin-top: {{gapPlan}}px; font-size: {{planFont}}px; color: #6b7280">{{planText}}</text>
+
+    <div class="track" if="{{!settingsOpen}}" style="width: {{trackW}}px; height: {{trackH}}px; border-radius: {{trackR}}px; margin-top: {{gapTrack}}px">
+      <div style="width: {{fillWidth}}px; height: {{trackH}}px; border-radius: {{trackR}}px; background-color: #22c55e"></div>
+    </div>
+
+    <text if="{{!settingsOpen}}" style="margin-top: {{gapMeta}}px; font-size: {{metaFont}}px; color: #9ca3af">{{metaText}}</text>
+
+    <div class="spacer" if="{{!settingsOpen}}"></div>
+
+    <div class="row-center" if="{{!settingsOpen}}" style="height: {{btnH}}px">
+      <div class="btn-main" style="width: {{mainBtnW}}px; height: {{btnH}}px; border-radius: {{btnR}}px" onclick="onMainTap" onlongpress="onReset">
+        <text style="font-size: {{btnFont}}px; font-weight: bold; color: #04140a">{{mainText}}</text>
+      </div>
+      <div class="btn-reset" style="width: {{resetBtnW}}px; height: {{btnH}}px; margin-left: {{btnGap}}px; border-radius: {{btnR}}px; opacity: {{resetOpacity}}" onclick="onReset">
+        <text style="font-size: {{resetFont}}px; color: #d1d5db">{{resetText}}</text>
+      </div>
+    </div>
+
+    <text if="{{!settingsOpen}}" style="margin-top: {{gapTip}}px; font-size: {{tipFont}}px; color: #4b5563">{{tipText}}</text>
+
+    <!-- ===== 设置面板 ===== -->
+    <div class="head-row" if="{{settingsOpen}}" style="width: {{cardW}}px; height: {{setH}}px">
+      <div class="head-side" style="width: {{headSide}}px; height: {{setH}}px" onclick="closeSettings">
+        <text style="font-size: {{backFont}}px; color: #22c55e">‹ 返回</text>
+      </div>
+      <div class="head-center" style="height: {{setH}}px">
+        <text style="font-size: {{titleFont}}px; color: #ffffff; font-weight: bold">设置</text>
+      </div>
+      <div class="head-side" style="width: {{headSide}}px; height: {{setH}}px" style2=""><text style="font-size: {{backFont}}px; color: #000000">‹ 返回</text></div>
+    </div>
+
+    <scroll class="set-scroll" if="{{settingsOpen}}" style="width: {{cardW}}px; height: {{scrollH}}px; margin-top: {{cardGap}}px">
+      <div class="card" style="width: {{cardW}}px; height: {{cardH}}px; border-radius: {{cardR}}px; padding: {{cardPadV}}px {{cardPadH}}px">
+        <text style="font-size: {{labelFont}}px; color: #6b7280; margin-left: {{cardPadH}}px">专注时长 · 长按快调</text>
+        <div class="row-sb" style="width: {{cardInnerW}}px; margin-left: {{cardPadH}}px; height: {{stepSize}}px; margin-top: {{ctrlGap}}px">
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="decSession" ontouchstart="holdSessionMinus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">-</text>
+          </div>
+          <text style="font-size: {{valueFont}}px; color: #ffffff">{{sessionMin}} 分</text>
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="incSession" ontouchstart="holdSessionPlus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">+</text>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="width: {{cardW}}px; height: {{cardH}}px; margin-top: {{cardGap}}px; border-radius: {{cardR}}px; padding: {{cardPadV}}px {{cardPadH}}px">
+        <text style="font-size: {{labelFont}}px; color: #6b7280; margin-left: {{cardPadH}}px">最短间隔</text>
+        <div class="row-sb" style="width: {{cardInnerW}}px; margin-left: {{cardPadH}}px; height: {{stepSize}}px; margin-top: {{ctrlGap}}px">
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="decMinGap" ontouchstart="holdMinMinus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">-</text>
+          </div>
+          <text style="font-size: {{valueFont}}px; color: #ffffff">{{minGapMin}} 分</text>
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="incMinGap" ontouchstart="holdMinPlus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">+</text>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="width: {{cardW}}px; height: {{cardH}}px; margin-top: {{cardGap}}px; border-radius: {{cardR}}px; padding: {{cardPadV}}px {{cardPadH}}px">
+        <text style="font-size: {{labelFont}}px; color: #6b7280; margin-left: {{cardPadH}}px">最长间隔</text>
+        <div class="row-sb" style="width: {{cardInnerW}}px; margin-left: {{cardPadH}}px; height: {{stepSize}}px; margin-top: {{ctrlGap}}px">
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="decMaxGap" ontouchstart="holdMaxMinus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">-</text>
+          </div>
+          <text style="font-size: {{valueFont}}px; color: #ffffff">{{maxGapMin}} 分</text>
+          <div class="step" style="width: {{stepSize}}px; height: {{stepSize}}px; border-radius: {{stepR}}px" onclick="incMaxGap" ontouchstart="holdMaxPlus" ontouchend="holdEnd" ontouchcancel="holdEnd">
+            <text style="font-size: {{stepFont}}px; color: #ffffff">+</text>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="width: {{cardW}}px; height: {{cardH}}px; margin-top: {{cardGap}}px; border-radius: {{cardR}}px; padding: {{cardPadV}}px {{cardPadH}}px">
+        <text style="font-size: {{labelFont}}px; color: #6b7280; margin-left: {{cardPadH}}px">专注时常亮</text>
+        <div class="row-center" style="width: {{cardInnerW}}px; margin-left: {{cardPadH}}px; height: {{stepSize}}px; margin-top: {{ctrlGap}}px">
+          <switch checked="{{keepAwake}}" style="width: {{swW}}px; height: {{swH}}px; track-color: {{trackColor}}" onchange="onAwakeChange"></switch>
+        </div>
+      </div>
+
+    </scroll>
+
+    <div class="row-center" if="{{settingsOpen}}" style="height: {{tryH}}px; margin-top: {{tryGap}}px">
+      <div class="try" style="width: {{tryW}}px; height: {{tryH}}px; border-radius: {{tryR}}px" onclick="tryBuzz">
+        <text style="font-size: {{tryFont}}px; color: #22c55e">试一下震动</text>
+      </div>
+    </div>
+
+    <div class="row-center" if="{{settingsOpen}}" style="height: {{saveH}}px; margin-top: {{saveGap}}px">
+      <div class="btn-main" style="width: {{saveW}}px; height: {{saveH}}px; border-radius: {{btnR}}px" onclick="closeSettings">
+        <text style="font-size: {{saveFont}}px; font-weight: bold; color: #04140a">保存并返回</text>
+      </div>
+    </div>
+
+
+    <div class="spacer" if="{{settingsOpen}}"></div>
+    <div class="row-center" if="{{settingsOpen}}" style="height: {{creditH}}px; margin-top: {{creditGap}}px">
+      <text style="font-size: {{creditFont}}px; color: #4b5563">@1TRhez. 2026 v1.2</text>
+    </div>
+    <div style="height: {{padBottom}}px"></div>
+  </div>
+</template>
+
+<script>
+import device from '@system.device'
+import brightness from '@system.brightness'
+import { loadSettings, saveSettings } from '../../common/settings'
+import { buzzTwice, buzzOnce, buzzDone } from '../../common/vibrate'
+
+const BREAK_MS = 10000
+const CLOCK_BUDGET = 170
+const CLOCK_CHAR_W = 0.52
+const CLOCK_MIN = 24
+const CLOCK_MAX = 64
+const TICK_MS = 500
+
+const AUTO_START = false
+const DEMO_FAST = false
+
+const BASE_W = 192
+const COLOR_WHITE = '#ffffff'
+const COLOR_DIM = '#6b7280'
+
+function sizeTable(k) {
+  const s = function (v) {
+    return Math.round(v * k * 100) / 100
+  }
+  return {
+    pageW: s(192),
+    pageH: s(490),
+    padTop: s(26),
+    padBottom: s(12),
+    setW: s(132),
+    setH: s(40),
+    setR: s(17),
+    setFont: s(20),
+    clockBig: s(58),
+    clockSmall: s(30),
+    planFont: s(15),
+    gapPlan: s(8),
+    trackW: s(156),
+    trackH: s(6),
+    trackR: s(3),
+    gapTrack: s(12),
+    metaFont: s(15),
+    gapMeta: s(12),
+    btnH: s(52),
+    btnR: s(26),
+    btnWFull: s(160),
+    btnWHalf: s(78),
+    btnGap: s(6),
+    btnFont: s(21),
+    resetFont: s(17),
+    gapTip: s(10),
+    tipFont: s(12),
+    backFont: s(16),
+    titleFont: s(19),
+    headSide: s(50),
+    cardW: s(170),
+    cardH: s(66),
+    cardR: s(14),
+    cardGap: s(5),
+    cardPadV: s(8),
+    cardPadH: s(12),
+    cardInnerW: s(146),
+    labelFont: s(14),
+    ctrlH: s(40),
+    ctrlGap: s(6),
+    stepSize: s(40),
+    stepR: s(20),
+    stepFont: s(22),
+    valueFont: s(20),
+    swW: s(62),
+    swH: s(34),
+    tryW: s(116),
+    tryH: s(30),
+    tryR: s(19),
+    tryFont: s(15),
+    tryGap: s(6),
+    saveW: s(160),
+    saveH: s(46),
+    saveFont: s(21),
+    creditFont: s(11),
+    creditGap: s(6),
+    creditH: s(14),
+    saveGap: s(4),
+    scrollH: s(293)
+  }
+}
+
+function pad2(num) {
+  return num < 10 ? '0' + num : '' + num
+}
+
+function formatClock(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000))
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  if (h > 0) {
+    return h + ':' + pad2(m) + ':' + pad2(s)
+  }
+  return pad2(m) + ':' + pad2(s)
+}
+
+export default {
+  private: {
+    pageW: 192,
+    pageH: 490,
+    padTop: 26,
+    padBottom: 12,
+    setW: 132,
+    setH: 40,
+    setR: 17,
+    setFont: 20,
+    clockBig: 58,
+    clockSmall: 30,
+    planFont: 15,
+    gapPlan: 8,
+    trackW: 156,
+    trackH: 6,
+    trackR: 3,
+    gapTrack: 12,
+    metaFont: 15,
+    gapMeta: 12,
+    btnH: 52,
+    btnR: 26,
+    btnWFull: 160,
+    btnWHalf: 78,
+    btnGap: 6,
+    btnFont: 21,
+    resetFont: 17,
+    gapTip: 10,
+    tipFont: 12,
+    backFont: 16,
+    titleFont: 19,
+    headSide: 50,
+    cardW: 170,
+    cardH: 66,
+    cardR: 14,
+    cardGap: 5,
+    cardPadV: 8,
+    cardPadH: 12,
+    cardInnerW: 146,
+    labelFont: 14,
+    ctrlH: 40,
+    ctrlGap: 6,
+    stepSize: 40,
+    stepR: 20,
+    stepFont: 22,
+    valueFont: 20,
+    swW: 62,
+    swH: 34,
+    tryW: 116,
+    tryH: 30,
+    tryR: 19,
+    tryFont: 15,
+    tryGap: 6,
+    saveW: 160,
+    saveH: 46,
+    saveFont: 21,
+    creditFont: 11,
+    creditGap: 6,
+    creditH: 14,
+    saveGap: 4,
+    scrollH: 293,
+
+    clockText: '1:00:00',
+    clockSize2: 46,
+    clockColor: COLOR_WHITE,
+    planText: '计划 60 分钟',
+    fillWidth: 0,
+    metaText: '已提示 0 次',
+    mainText: '开始',
+    mainBtnW: 160,
+    resetBtnW: 0,
+    resetOpacity: 0,
+    resetText: '',
+    tipText: '',
+
+    running: false,
+    finished: false,
+    phase: 'work',
+    elapsedMs: 0,
+    startedAt: 0,
+    count: 0,
+    nextAt: 0,
+    breakEndsAt: 0,
+    timerId: null,
+
+    settingsOpen: false,
+    sessionMin: 60,
+    minGapMin: 5,
+    maxGapMin: 15,
+    keepAwake: true,
+    awakeHint: '开',
+    awakeColor: '#22c55e',
+    trackColor: '#22c55e',
+    sessionMs: 3600000,
+
+    holdFired: false,
+    holdTimer: null,
+    holdInterval: null,
+    scale: 1,
+    screenW: 192
+  },
+
+  onInit() {
+    this.applyScale()
+    this.applySettings()
+    this.updateView()
+    if (AUTO_START) {
+      this.start()
+    }
+  },
+
+  // 真实屏幕宽度折算缩放：手环 192 宽时 k=1；
+  // 若安装器把 designWidth 改回 466，画布变宽，k 会跟着放大，屏幕上看起来仍然是该有的大小。
+  applyScale() {
+    let info = null
+    try {
+      info = device.getInfo()
+    } catch (err) {
+      info = null
+    }
+    let w = 0
+    if (info) {
+      const a = Number(info.windowWidth || 0)
+      const b = Number(info.screenWidth || 0)
+      w = a > 0 ? a : b
+    }
+    if (!w) {
+      w = BASE_W
+    }
+    if (w < 120) {
+      w = BASE_W
+    }
+    // 只有落在 192 级别的屏才按比例缩放；模拟器那种 466 画布按 1:1 渲染
+    let k = 1
+    if (w >= 120 && w <= 260) {
+      k = w / BASE_W
+    }
+    this.screenW = w
+    this.scale = Math.round(k * 100) / 100
+    const t = sizeTable(k)
+    for (const key in t) {
+      this[key] = t[key]
+    }
+    this.mainBtnW = t.btnWFull
+  },
+
+  onShow() {
+    if (!this.settingsOpen) {
+      this.applySettings()
+    }
+    this.catchUp()
+  },
+
+  onDestroy() {
+    this.clearTimer()
+    this.releaseScreen()
+  },
+
+  applySettings() {
+    const self = this
+    loadSettings(function (settings) {
+      self.sessionMin = settings.sessionMin
+      self.minGapMin = settings.minGap
+      self.maxGapMin = settings.maxGap
+      self.keepAwake = settings.keepAwake
+      self.sessionMs = settings.sessionMin * 60000
+      self.refreshLabels()
+      if (self.running) {
+        self.keepScreen()
+      }
+      self.updateView()
+      self.syncButtons()
+    })
+  },
+
+  refreshLabels() {
+    this.awakeHint = this.keepAwake ? '开' : '关'
+    this.awakeColor = this.keepAwake ? '#22c55e' : '#6b7280'
+    this.trackColor = this.keepAwake ? '#22c55e' : '#374151'
+  },
+
+  persistSettings() {
+    saveSettings({
+      sessionMin: this.sessionMin,
+      minGap: this.minGapMin,
+      maxGap: this.maxGapMin,
+      keepAwake: this.keepAwake
+    })
+  },
+
+  applyEditedSettings() {
+    this.sessionMs = this.sessionMin * 60000
+    if (this.running) {
+      this.scheduleNext(Date.now())
+      if (this.keepAwake) {
+        this.keepScreen()
+      } else {
+        this.releaseScreen()
+      }
+    }
+    this.updateView()
+  },
+
+  openSettings() {
+    this.holdEnd()
+    this.settingsOpen = true
+    this.refreshLabels()
+  },
+
+  closeSettings() {
+    this.holdEnd()
+    this.persistSettings()
+    this.settingsOpen = false
+    this.applyEditedSettings()
+  },
+
+  tryBuzz() {
+    buzzTwice()
+  },
+
+  onAwakeChange(e) {
+    const next = e && e.checked !== undefined ? !!e.checked : !this.keepAwake
+    this.keepAwake = next
+    this.refreshLabels()
+    this.persistSettings()
+  },
+
+  holdBegin(kind) {
+    const self = this
+    this.holdFired = false
+    clearTimeout(this.holdTimer)
+    clearInterval(this.holdInterval)
+    this.holdTimer = setTimeout(function () {
+      self.holdFired = true
+      self.holdInterval = setInterval(function () {
+        self.stepOnce(kind)
+      }, 90)
+    }, 450)
+  },
+
+  holdEnd() {
+    clearTimeout(this.holdTimer)
+    clearInterval(this.holdInterval)
+    this.holdTimer = null
+    this.holdInterval = null
+    const self = this
+    setTimeout(function () {
+      self.holdFired = false
+    }, 150)
+  },
+
+  holdSessionPlus() {
+    this.holdBegin('session+')
+  },
+
+  holdSessionMinus() {
+    this.holdBegin('session-')
+  },
+
+  holdMinPlus() {
+    this.holdBegin('min+')
+  },
+
+  holdMinMinus() {
+    this.holdBegin('min-')
+  },
+
+  holdMaxPlus() {
+    this.holdBegin('max+')
+  },
+
+  holdMaxMinus() {
+    this.holdBegin('max-')
+  },
+
+  decSession() {
+    if (!this.holdFired) {
+      this.stepOnce('session-')
+    }
+  },
+
+  incSession() {
+    if (!this.holdFired) {
+      this.stepOnce('session+')
+    }
+  },
+
+  decMinGap() {
+    if (!this.holdFired) {
+      this.stepOnce('min-')
+    }
+  },
+
+  incMinGap() {
+    if (!this.holdFired) {
+      this.stepOnce('min+')
+    }
+  },
+
+  decMaxGap() {
+    if (!this.holdFired) {
+      this.stepOnce('max-')
+    }
+  },
+
+  incMaxGap() {
+    if (!this.holdFired) {
+      this.stepOnce('max+')
+    }
+  },
+
+  stepOnce(kind) {
+    if (kind === 'session+') {
+      this.sessionMin = Math.min(120, this.sessionMin + 5)
+    } else if (kind === 'session-') {
+      this.sessionMin = Math.max(10, this.sessionMin - 5)
+    } else if (kind === 'min+') {
+      this.minGapMin = Math.min(59, this.minGapMin + 1)
+      if (this.maxGapMin <= this.minGapMin) {
+        this.maxGapMin = this.minGapMin + 1
+      }
+    } else if (kind === 'min-') {
+      this.minGapMin = Math.max(1, this.minGapMin - 1)
+      if (this.maxGapMin <= this.minGapMin) {
+        this.maxGapMin = this.minGapMin + 1
+      }
+    } else if (kind === 'max+') {
+      this.maxGapMin = Math.min(120, this.maxGapMin + 1)
+    } else if (kind === 'max-') {
+      this.maxGapMin = Math.max(this.minGapMin + 1, this.maxGapMin - 1)
+    }
+    this.persistSettings()
+    this.applyEditedSettings()
+  },
+
+  updateView() {
+    const isBreak = this.phase === 'break'
+    const left = Math.max(0, this.sessionMs - this.elapsedMs)
+    const ratio = this.sessionMs > 0 ? Math.min(1, this.elapsedMs / this.sessionMs) : 0
+
+    this.clockColor = isBreak ? COLOR_DIM : COLOR_WHITE
+    this.planText = '计划 ' + this.sessionMin + ' 分钟'
+    this.fillWidth = Math.round(ratio * this.trackW)
+    this.metaText = '已提示 ' + this.count + ' 次'
+
+    if (this.finished) {
+      this.clockText = '00:00'
+      this.clockSize2 = this.fitClockFont(this.clockText)
+      this.mainText = '再来一轮'
+      this.tipText = '提醒了 ' + this.count + ' 次'
+    } else if (this.running) {
+      this.mainText = '暂停'
+      this.tipText = this.tip()
+    } else if (this.elapsedMs > 0) {
+      this.mainText = '继续'
+      this.tipText = '按继续回到专注'
+    } else {
+      this.mainText = '开始'
+      this.tipText = this.tip()
+    }
+
+    const shown = this.running || this.elapsedMs > 0 ? left : this.sessionMs
+    this.clockText = formatClock(shown)
+    this.clockSize2 = this.fitClockFont(this.clockText)
+  },
+
+  tip() {
+    return '每 ' + this.minGapMin + '-' + this.maxGapMin + ' 分钟随机提醒'
+  },
+
+  catchUp() {
+    if (!this.running) {
+      return
+    }
+    const now = Date.now()
+    this.elapsedMs = now - this.startedAt
+    if (this.elapsedMs >= this.sessionMs) {
+      this.finish()
+      return
+    }
+    if (this.phase === 'break') {
+      if (now >= this.breakEndsAt) {
+        this.endBreak(now)
+      }
+    } else if (this.nextAt && now >= this.nextAt) {
+      this.startBreak(now)
+    }
+    this.updateView()
+  },
+
+  onMainTap() {
+    if (this.running) {
+      this.pause()
+    } else {
+      this.start()
+    }
+  },
+
+  start() {
+    if (this.finished) {
+      this.finished = false
+      this.elapsedMs = 0
+      this.count = 0
+    }
+    const now = Date.now()
+    this.startedAt = now - this.elapsedMs
+    this.running = true
+    this.finished = false
+    this.phase = 'work'
+    this.nextAt = 0
+    this.scheduleNext(now)
+    this.keepScreen()
+    this.startTimer()
+    this.updateView()
+    this.syncButtons()
+  },
+
+  pause() {
+    this.running = false
+    this.clearTimer()
+    this.updateView()
+    this.syncButtons()
+  },
+
+  // 暂停后：直接切成"主按钮 + 重置按钮"，不做宽度/透明度动画（手环上动画会卡）
+  syncButtons() {
+    const wantReset = !this.running && !this.finished && this.elapsedMs > 0
+    this.resetText = wantReset ? '重置' : ''
+    if (wantReset) {
+      this.mainBtnW = this.btnWHalf
+      this.resetBtnW = this.btnWHalf
+      this.resetOpacity = 1
+    } else {
+      this.mainBtnW = this.btnWFull
+      this.resetBtnW = 0
+      this.resetOpacity = 0
+    }
+  },
+
+  // 倒计时字号按文字长度自适应：短串放大、长串缩小，左右始终留出同样的边距
+  fitClockFont(text) {
+    const n = text.length
+    if (!n) {
+      return this.clockBig
+    }
+    const k = this.scale || 1
+    const base = Math.floor(CLOCK_BUDGET / (n * CLOCK_CHAR_W))
+    const sized = Math.max(CLOCK_MIN, Math.min(CLOCK_MAX, base))
+    return Math.round(sized * k)
+  },
+
+  onReset() {
+    if (!this.running && this.elapsedMs === 0 && this.count === 0) {
+      this.openSettings()
+      return
+    }
+    this.clearTimer()
+    this.running = false
+    this.finished = false
+    this.phase = 'work'
+    this.elapsedMs = 0
+    this.count = 0
+    this.nextAt = 0
+    this.breakEndsAt = 0
+    this.releaseScreen()
+    this.updateView()
+    this.syncButtons()
+  },
+
+  startTimer() {
+    this.clearTimer()
+    const self = this
+    this.timerId = setInterval(function () {
+      self.tick()
+    }, TICK_MS)
+  },
+
+  clearTimer() {
+    if (this.timerId) {
+      clearInterval(this.timerId)
+      this.timerId = null
+    }
+  },
+
+  tick() {
+    if (!this.running) {
+      return
+    }
+    const now = Date.now()
+    this.elapsedMs = now - this.startedAt
+
+    if (this.elapsedMs >= this.sessionMs) {
+      this.finish()
+      return
+    }
+
+    if (this.phase === 'break') {
+      if (now >= this.breakEndsAt) {
+        this.endBreak(now)
+      }
+    } else if (this.nextAt && now >= this.nextAt) {
+      this.startBreak(now)
+    }
+
+    this.updateView()
+  },
+
+  startBreak(now) {
+    this.phase = 'break'
+    this.breakEndsAt = now + BREAK_MS
+    this.count = this.count + 1
+    buzzTwice()
+    this.updateView()
+  },
+
+  endBreak(now) {
+    this.phase = 'work'
+    buzzOnce()
+    this.scheduleNext(now)
+    this.updateView()
+  },
+
+  scheduleNext(now) {
+    this.nextAt = now + this.randomGap()
+  },
+
+  randomGap() {
+    if (DEMO_FAST) {
+      return 12000
+    }
+    let lo = Math.round(this.minGapMin)
+    let hi = Math.round(this.maxGapMin)
+    if (lo < 1) {
+      lo = 1
+    }
+    if (hi <= lo) {
+      hi = lo + 1
+    }
+    const minutes = lo + Math.floor(Math.random() * (hi - lo + 1))
+    return minutes * 60000
+  },
+
+  finish() {
+    this.clearTimer()
+    this.running = false
+    this.finished = true
+    this.phase = 'work'
+    this.elapsedMs = this.sessionMs
+    this.releaseScreen()
+    buzzDone()
+    this.updateView()
+    this.syncButtons()
+  },
+
+  keepScreen() {
+    if (!this.keepAwake) {
+      return
+    }
+    try {
+      brightness.setKeepScreenOn({ keepScreenOn: true })
+    } catch (err) {
+      console.log('keepScreenOn failed: ' + err)
+    }
+  },
+
+  releaseScreen() {
+    try {
+      brightness.setKeepScreenOn({ keepScreenOn: false })
+    } catch (err) {
+      console.log('keepScreenOn(false) failed: ' + err)
+    }
+  }
+}
+</script>
+
+<style>
+.page {
+  flex-direction: column;
+  align-items: center;
+  background-color: #000000;
+}
+
+.row-center {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.row-sb {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.set-btn {
+  background-color: #16221a;
+  justify-content: center;
+  align-items: center;
+}
+
+.track {
+  background-color: #1f2937;
+}
+
+.btn-main {
+  background-color: #22c55e;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.btn-reset {
+  background-color: #1f2937;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.card {
+  background-color: #111827;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.step {
+  background-color: #1f2937;
+  justify-content: center;
+  align-items: center;
+}
+
+.try {
+  background-color: #16221a;
+  justify-content: center;
+  align-items: center;
+}
+
+.head-row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.head-side {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.head-center {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.set-scroll {
+  flex-direction: column;
+}
+</style>
