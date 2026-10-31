@@ -4,7 +4,8 @@
 
 专注震动番茄钟：随机短片段休息，激活神经回放与正反馈奖励机制，刺激多巴胺专注学习，无感震动沉浸式专注。
 
-基于cell论文Replay神经回放原理辅助学习
+基于cell论文Replay神经回放原理的学习方式
+
 论文参考：《Replay of Learned Neural Firing Sequences during Rest in Human Motor Cortex》https://www.cell.com/cell-reports/fulltext/S2211-1247(20)30530-1
 
 
